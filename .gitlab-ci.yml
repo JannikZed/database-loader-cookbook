@@ -1,0 +1,101 @@
+before_script:
+  - export PATH=$PATH:/usr/bin
+
+# rubocop:
+#  script:
+#    - gem install rubocop
+#    - gem install foodcritic
+#     - foodcritic .
+#    - rubocop
+#  image: ruby:2.1
+#  tags:
+#     - docker
+
+chef-kitchen-test:
+  script:
+     - kitchen diagnose --all
+     - kitchen test
+  image: jmccann/drone-chefdk
+
+compile_centos7_ruby210:
+  script:
+      - yum install -y gcc which tar mysql-devel git
+      - 'which ssh-agent || ( yum install openssh-client -y )'
+      - eval $(ssh-agent -s)
+      - ssh-add <(echo "$CI_USER_ID_RSA")
+      - mkdir -p ~/.ssh
+      - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+      - gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+      - \curl -sSL https://get.rvm.io | bash -s stable
+      - source /etc/profile.d/rvm.sh
+      - rvm install 2.1.0
+      - gem install gem-compiler
+      - gem fetch mysql2
+      - gem compile mysql2-*
+      - mv mysql2-*-linux.gem `ls mysql2-*-linux.gem | sed 's/linux/centos7/g'`
+      - mv mysql2-*-centos7.gem files/default/
+  image: centos:7
+  services:
+  artifacts:
+    paths:
+      - files/default/mysql2-*-centos7.gem
+  tags: 
+      - docker
+  only:
+      - gem-build
+
+compile_centos6_ruby210:
+  script:
+      - yum install -y gcc which tar mysql-devel git
+      - 'which ssh-agent || ( yum install openssh-client -y )'
+      - eval $(ssh-agent -s)
+      - ssh-add <(echo "$CI_USER_ID_RSA")
+      - mkdir -p ~/.ssh
+      - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+      - gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+      - \curl -sSL https://get.rvm.io | bash -s stable
+      - source /etc/profile.d/rvm.sh
+      - rvm install 2.1.0
+      - gem install gem-compiler
+      - gem fetch mysql2
+      - gem compile mysql2-*
+      - mv mysql2-*-linux.gem `ls mysql2-*-linux.gem | sed 's/linux/centos6/g'`
+      - mv mysql2-*-centos6.gem files/default/
+  image: centos:6
+  services:
+  artifacts:
+    paths:
+      - files/default/mysql2-*-centos6.gem
+  tags: 
+      - docker
+  only:
+      - gem-build
+
+compile_ubuntu1404_ruby210:
+  script:
+      - apt-get update && apt-get install -y gcc tar libmysqlclient-dev curl git
+      - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+      - eval $(ssh-agent -s)
+      - ssh-add <(echo "$CI_USER_ID_RSA")
+      - mkdir -p ~/.ssh
+      - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+      - gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+      - \curl -sSL https://get.rvm.io | bash -s stable
+      - source /etc/profile.d/rvm.sh
+      - rvm install 2.1.0
+      - gem install gem-compiler
+      - gem fetch mysql2
+      - gem compile mysql2-*
+      - mv mysql2-*-linux.gem `ls mysql2-*-linux.gem | sed 's/linux/ubuntu1404/g'`
+      - mv mysql2-*-ubuntu1404.gem files/default/
+  image: ubuntu:14.04
+  services:
+  artifacts:
+    paths:
+      - files/default/mysql2-*-ubuntu1404.gem
+  tags: 
+      - docker
+  only:
+      - gem-build
+
+

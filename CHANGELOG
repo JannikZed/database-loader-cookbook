@@ -1,0 +1,8 @@
+## v0.0.1
+Inital init of the cookbook
+
+## v2.1.0
+The cookbook integrates a recipe to install precompiled mysql2 gems. Still one small bug with auto increment tables
+
+## v0.3.1
+Added table_header feature

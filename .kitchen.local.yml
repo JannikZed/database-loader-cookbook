@@ -1,0 +1,26 @@
+driver:
+  name: docker
+  use_sudo: false
+
+provisioner:
+  name: chef_zero
+
+platforms:
+  - name: ubuntu-14.04
+    driver_config:
+      #dockerfile: chef/ubuntu-14.04
+      privileged: true
+  - name: centos-6
+    driver_config:
+      #dockerfile: chef/centos-6
+      privileged: true
+  - name: centos-7
+    driver_config:
+      #dockerfile: chef/centos-7
+      privileged: true
+
+suites:
+  - name: default
+    run_list:
+      - recipe[database-loader::default]
+    attributes:
